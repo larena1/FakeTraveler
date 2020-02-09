@@ -254,14 +254,32 @@ public class MainActivity extends AppCompatActivity {
         editor.commit();
 
         changeButtonToStop();
-        
+
         try {
-            mockNetwork = new MockLocationProvider(LocationManager.NETWORK_PROVIDER, context);
-            mockGps = new MockLocationProvider(LocationManager.GPS_PROVIDER, context);
+            mockNetwork = new MockLocationProvider(LocationManager.NETWORK_PROVIDER, context.getApplicationContext());
+            mockGps = new MockLocationProvider(LocationManager.GPS_PROVIDER, context.getApplicationContext());
         } catch (SecurityException e) {
             e.printStackTrace();
             MainActivity.toast(context.getResources().getString(R.string.ApplyMockBroadRec_MockNotApplied));
             stopMockingLocation();
+            return;
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            MainActivity.toast(e.getLocalizedMessage());
+            stopMockingLocation();
+            LocationManager lm = (LocationManager) context.getSystemService(
+                    Context.LOCATION_SERVICE);
+
+            try {
+                lm.removeTestProvider("network");
+            } finally {
+
+            }
+            try {
+                lm.removeTestProvider("gps");
+            } finally {
+
+            }
             return;
         }
 
